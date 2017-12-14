@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D579D6BA-966F-4819-B6F5-DC3587D2C9FB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DataCare.Framework.Onderwijsinhoud</RootNamespace>
+    <AssemblyName>DataCare.Framework.Onderwijsinhoud</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\DataCare.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ImportLeerlijnenpakket.cs" />
+    <Compile Include="Models\Adres.cs" />
+    <Compile Include="Models\Adressoort.cs" />
+    <Compile Include="Models\AuditTrail.cs" />
+    <Compile Include="Models\Deellijn.cs" />
+    <Compile Include="Models\Doel.cs" />
+    <Compile Include="Models\Emailadres.cs" />
+    <Compile Include="Models\EmailadresSoort.cs" />
+    <Compile Include="Models\Geslacht.cs" />
+    <Compile Include="Models\IHaveAuditTrail.cs" />
+    <Compile Include="Models\IHaveBuilder.cs" />
+    <Compile Include="Models\Land.cs" />
+    <Compile Include="Models\Leerlijn.cs" />
+    <Compile Include="Models\Leerlijnenpakket.cs" />
+    <Compile Include="Models\Medewerker.cs" />
+    <Compile Include="Models\Nationaliteit.cs" />
+    <Compile Include="Models\Niveautrede.cs" />
+    <Compile Include="Models\Persoon.cs" />
+    <Compile Include="Models\PersoonComparer.cs" />
+    <Compile Include="Models\SurrogateKey.cs" />
+    <Compile Include="Models\Telefoonnummer.cs" />
+    <Compile Include="Models\TelefoonnummerSoort.cs" />
+    <Compile Include="Models\Vakgebied.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataCare.Utilities\DataCare.Utilities.csproj">
+      <Project>{A7AD9CEA-C9ED-43C7-AF6A-508CF2E7B7AA}</Project>
+      <Name>DataCare.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
+      <Link>CustomDictionary.xml</Link>
+    </CodeAnalysisDictionary>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core">
+      <Version>4.2.3</Version>
+    </PackageReference>
+    <PackageReference Include="FSharpx.Core">
+      <Version>1.8.32</Version>
+    </PackageReference>
+    <PackageReference Include="NodaTime">
+      <Version>2.2.3</Version>
+    </PackageReference>
+    <PackageReference Include="System.Interactive">
+      <Version>3.1.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
