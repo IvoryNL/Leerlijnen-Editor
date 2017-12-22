@@ -29,7 +29,7 @@
             this.vakgebieden = new Dictionary<string, Vakgebied>();
         }
 
-        public Leerlijnenpakket GetLeerlijnenPakket(IEnumerable<Leerlijnenpakket> bestaandeLeerlijnenpakketten, string file)
+        public Leerlijnenpakket GetLeerlijnenPakket(string file)
         {
             Leerlijnenpakket leerlijnenpakket = null;
             try
@@ -43,11 +43,9 @@
 
                     DateTime invuldatum = DateTimeExtensions.Now;
 
-                    var bestaandPakket = bestaandeLeerlijnenpakketten.Where(l => string.Compare(l.Naam, PakketNaam, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault();
-
                     leerlijnenpakket = new Leerlijnenpakket(
                         Guid.NewGuid(),
-                        bestaandPakket != null ? bestaandPakket.Nummer : Guid.NewGuid(),
+                        Guid.NewGuid(),
                         PakketNaam,
                         invuldatum,
                         definitief: true,
