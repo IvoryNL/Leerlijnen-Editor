@@ -33,12 +33,7 @@ namespace DataCare.Tools.LeerlijnenEditor.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            //if (openFileDialog.ShowDialog() == true)
-            //{
-            //    this.LeerlijnenPakketFile.Text = openFileDialog.FileName;
-            //}
+            
         }
     }
 }
