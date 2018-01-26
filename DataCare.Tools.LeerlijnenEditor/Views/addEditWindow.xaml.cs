@@ -15,25 +15,18 @@ using System.Windows.Shapes;
 namespace DataCare.Tools.LeerlijnenEditor.Views
 {
     /// <summary>
-    /// Interaction logic for addWindow.xaml
+    /// Interaction logic for addEditWindow.xaml
     /// </summary>
-    public partial class addLeerlijnWindow : Window
+    public partial class addEditWindow : Window
     {
-        private string nieuweLeerlijn;
-        public addLeerlijnWindow()
+        public addEditWindow()
         {
             InitializeComponent();
         }
 
-        private void btnVoegToe_Click(object sender, RoutedEventArgs e)
+        private void button_Click(object sender, RoutedEventArgs e)
         {
-            nieuweLeerlijn = this.leerlijnNaam.Text;
             this.Close();
-        }
-
-        public string parseNieuwLeerlijn()
-        {
-            return nieuweLeerlijn;
         }
     }
 }

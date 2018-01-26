@@ -16,32 +16,29 @@ using System.Windows.Shapes;
 using System.Xml.Linq;
 using DataCare.Tools.LeerlijnenEditor.Views;
 using DataCare.Tools.LeerlijnenEditor.ViewModels;
+using System.Windows.Controls.Ribbon;
 
 namespace DataCare.Tools.LeerlijnenEditor.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : RibbonWindow
     {
         public MainWindow()
         {
             InitializeComponent();
+            this.Title = "Leerlijnen editor";
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            //OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                this.LeerlijnenPakketFile.Text = openFileDialog.FileName;
-            }
-        }
-
-        private void btnOpslaan_Click(object sender, RoutedEventArgs e)
-        {
-
+            //if (openFileDialog.ShowDialog() == true)
+            //{
+            //    this.LeerlijnenPakketFile.Text = openFileDialog.FileName;
+            //}
         }
     }
 }

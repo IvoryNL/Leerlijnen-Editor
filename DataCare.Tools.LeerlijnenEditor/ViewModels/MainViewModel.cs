@@ -12,14 +12,28 @@ using System.Xml;
 using System.Xml.Linq;
 using DataCare.Tools.LeerlijnenEditor.Views;
 using DataCare.Tools.LeerlijnenEditor.Commands;
+using Microsoft.Win32;
+using System.ComponentModel.DataAnnotations;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace DataCare.Tools.LeerlijnenEditor.ViewModels
 {
-    class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : ViewModel
     {
-        public RelayCommand AddLeerlijn { get; set; }
-        public RelayCommand AddDeellijn { get; set; }
+        public RelayCommand AddLeerlijnCommand { get; set; }
+        public RelayCommand SaveXMLCommand { get; set; }
+        public RelayCommand OpenXMLCommand { get; set; }
+        public RelayCommand NewXMLCommand { get; set; }
+        public RelayCommand DeleteLeerlijnCommand { get; set; }
 
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Auteur naam is verplicht!")]
+        public string Auteur { get; set; }
+
+        /// <summary>
+        /// Voert ook de methode ImportFile uit.
+        /// </summary>
         public string PathOfFile;
         public string FileOrPathName
         {
@@ -37,65 +51,191 @@ namespace DataCare.Tools.LeerlijnenEditor.ViewModels
 
         public LeerlijnenPakketViewModel LeerlijnenPakketVM { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public MainViewModel()
         {
-            this.AddLeerlijn = new RelayCommand(o =>  {
-                addLeerlijn();
+            this.AddLeerlijnCommand = new RelayCommand(o =>  {
+                addEditWindow leerlijnWindow = new addEditWindow();
+                leerlijnWindow.Title = "Toevoeg venster";
+                leerlijnWindow.txtKop.Text = "Voeg leerlijn toe";
+                leerlijnWindow.txtNaam.Text = "Naam";
+                leerlijnWindow.button.Content = "Voeg toe";
+                leerlijnWindow.ShowDialog();
+                if (!string.IsNullOrWhiteSpace(leerlijnWindow.txtWaarde.Text)) AddLeerlijn(leerlijnWindow.txtWaarde.Text);
             }, o => true);
-            this.AddDeellijn = new RelayCommand(o => {
-                var result = o.ToString();
-                addDeellijn(result);
+
+            this.DeleteLeerlijnCommand = new RelayCommand(o => {
+                var result = o;
+                ExecuteDeleteLeerlijn((LeerlijnViewModel)result);
             }, o => true);
+
+            this.SaveXMLCommand = new RelayCommand(o =>
+            { 
+                SaveXML();
+            }, o => true);
+
+            this.OpenXMLCommand = new RelayCommand(o => {
+                OpenXML();
+            }, o => true);
+
+            this.NewXMLCommand = new RelayCommand(o => {
+                NewXML();
+            }, o => true);
+
+            if (Auteur == null) Auteur = "Naam van de auteur";
         }
 
         
-
+        /// <summary>
+        /// Haalt het leerlijnenpakket op en maakt een nieuw object aan.
+        /// </summary>
         public void importFile()
         {
-            ImportLeerlijnenpakket leerlijnenpakket = new ImportLeerlijnenpakket();
-            Leerlijnenpakket = leerlijnenpakket.GetLeerlijnenPakket(PathOfFile);
-
-            LeerlijnenPakketVM = new LeerlijnenPakketViewModel();
-
-            LeerlijnenPakketVM.Naam = Leerlijnenpakket.Naam;
-            foreach (var leerlijnen in Leerlijnenpakket.Leerlijnen)
+            if (FileOrPathName != null)
             {
-                LeerlijnenPakketVM.addLeerlijnen(leerlijnen);
+                ImportLeerlijnenpakket leerlijnenpakket = new ImportLeerlijnenpakket();
+                Leerlijnenpakket = leerlijnenpakket.GetLeerlijnenPakket(PathOfFile);
+
+                LeerlijnenPakketVM = new LeerlijnenPakketViewModel();
+
+                LeerlijnenPakketVM.Naam = Leerlijnenpakket.Naam;
+                foreach (var leerlijnen in Leerlijnenpakket.Leerlijnen)
+                {
+                    LeerlijnenPakketVM.AddLeerlijnen(leerlijnen);
+                }
             }
 
             NotifyPropertyChanged("LeerlijnenPakketVM");
         }
 
-        public void addLeerlijn()
+        /// <summary>
+        /// Toont het scherm om een leerlijn toe te voegen en voegt deze toe aan het object.
+        /// </summary>
+        public void AddLeerlijn(string leerlijnNaam)
         {
-            addLeerlijnWindow leerlijnWindow = new addLeerlijnWindow();
-            leerlijnWindow.ShowDialog();
-            if (leerlijnWindow.leerlijnNaam.Text != "" && LeerlijnenPakketVM != null)
+            if (!string.IsNullOrWhiteSpace(leerlijnNaam))
             {
-                LeerlijnViewModel leerlijn = new LeerlijnViewModel();
-                leerlijn.Naam = leerlijnWindow.leerlijnNaam.Text;
-                LeerlijnenPakketVM.Leerlijnen.Add(leerlijn);
+                if (LeerlijnenPakketVM != null)
+                {
+                    LeerlijnViewModel leerlijn = new LeerlijnViewModel();
+                    leerlijn.Naam = leerlijnNaam;
+                    LeerlijnenPakketVM.Leerlijnen.Add(leerlijn);
+                }
+            }
+        }
+        
+       /// <summary>
+       /// Verwijderd een leerlijn uit de collectie.
+       /// </summary>
+       /// <param name="leerlijn"></param>
+        public void ExecuteDeleteLeerlijn(LeerlijnViewModel leerlijn)
+        {
+            if (leerlijn != null) LeerlijnenPakketVM.Leerlijnen.Remove(leerlijn);
+        }
+
+        /// <summary>
+        /// Maakt een nieuwe XML aan.
+        /// </summary>
+        public void NewXML()
+        {
+            LeerlijnenPakketVM = new LeerlijnenPakketViewModel();
+            LeerlijnViewModel leerlijn = new LeerlijnViewModel();
+            leerlijn.Naam = "Nieuwe leerlijn";
+            LeerlijnenPakketVM.Leerlijnen.Add(leerlijn);
+            NotifyPropertyChanged("LeerlijnenPakketVM");
+        }
+
+        /// <summary>
+        /// Opent een bestaande XML bestand
+        /// </summary>
+        public void OpenXML()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                FileOrPathName = openFileDialog.FileName;
             }
         }
 
-        public void addDeellijn(string leerlijnNaam)
+        /// <summary>
+        /// Genereert een nieuwe XML bestand
+        /// </summary>
+        public void SaveXML()
         {
-            addDeellijnWindow deellijnWindow = new addDeellijnWindow();
-            deellijnWindow.ShowDialog();
-            DeellijnViewModel deellijn = new DeellijnViewModel();
-            deellijn.Deelgebied = deellijnWindow.deelgebiedNaam.Text;
-            var leerlijn = LeerlijnenPakketVM.Leerlijnen.FirstOrDefault(l => l.Naam == leerlijnNaam);
-            leerlijn.Deellijnen.Add(deellijn);
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "XML files(.xml)|*.xml|all Files(*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string fileName = saveFileDialog.FileName;
+                XDocument xDoc = new XDocument(
+                new XElement("Leerlijnpackage",
+                new XElement("MetaData", new XAttribute("GemaaktOp", DateTime.Now), new XAttribute("GemaaktDoorPersoon", Auteur)),
+                new XElement("Leerlijn", new XAttribute("Naam", LeerlijnenPakketVM.Naam),
+                fillLeerlijnXML()
+                        )
+                    )
+                );
+                xDoc.Save(fileName);
+            }
         }
 
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        /// <summary>
+        /// Vult de leerlijnen in de XML
+        /// </summary>
+        /// <returns></returns>
+        public XElement fillLeerlijnXML()
         {
-            if (PropertyChanged != null)
+            XElement vakGebieden = new XElement("Vakgebieden");
+
+            foreach (var leerlijn in LeerlijnenPakketVM.Leerlijnen)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                vakGebieden.Add(new XElement("Vakgebied", new XAttribute("Naam", leerlijn.Naam),
+                    fillDeellijnXML(leerlijn)));
             }
+
+            return vakGebieden;
+        }
+
+        /// <summary>
+        /// Vult de deellijnen in de XML
+        /// </summary>
+        /// <param name="leerlijn"></param>
+        /// <returns></returns>
+        public XElement fillDeellijnXML(LeerlijnViewModel leerlijn)
+        {
+           if (leerlijn != null)
+            {
+                XElement items = new XElement("Items");
+                foreach (var deellijn in leerlijn.Deellijnen)
+                {
+                    items.Add(new XElement("Item", new XAttribute("Naam", deellijn.Deelgebied),
+                        fillNiveaDoelXML(deellijn)));
+                }
+                return items;
+            }
+            else return null;
+        }
+
+        /// <summary>
+        /// Vult de niveaudoelen in de XML
+        /// </summary>
+        /// <param name="deellijn"></param>
+        /// <returns></returns>
+        public XElement fillNiveaDoelXML(DeellijnViewModel deellijn)
+        {
+            if (deellijn != null)
+            {
+                XElement subItems = new XElement("Subitems");
+
+                foreach (var niveauDoel in deellijn.Niveaudoelen)
+                {
+                    subItems.Add(new XElement("Subitem", new XAttribute("Naam", niveauDoel.Doel),
+                        new XAttribute("Niveau", niveauDoel.Niveau),
+                        new XAttribute("IsHoofdDoelstelling", niveauDoel.IsHoofddoel)));
+                }
+                return subItems;
+            }
+            else return null;
         }
     }
 }

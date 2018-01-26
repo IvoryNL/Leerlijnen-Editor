@@ -8,10 +8,11 @@ using DataCare.Model.Onderwijsinhoudelijk.Leerlijnen;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using DataCare.Tools.LeerlijnenEditor.Commands;
 
 namespace DataCare.Tools.LeerlijnenEditor.ViewModels
 {
-    class LeerlijnenPakketViewModel : PropertyValidateModel
+    public class LeerlijnenPakketViewModel : ViewModel
     {
         [Required(AllowEmptyStrings = false, ErrorMessage = "Leerlijnpakket naam is verplicht!")]
         public string Naam { get; set; }
@@ -20,57 +21,26 @@ namespace DataCare.Tools.LeerlijnenEditor.ViewModels
         public LeerlijnenPakketViewModel()
         {
             Leerlijnen = new ObservableCollection<ViewModels.LeerlijnViewModel>();
-        }
 
+            if (Naam == null) Naam = "Leerlijnen pakket";
+        }
         
-
-        public void addLeerlijnen(Leerlijn leerlijn)
+        /// <summary>
+        /// Voegt de leerlijnen toe aan het object met daarbij de vulling van de deellijnen.
+        /// </summary>
+        /// <param name="leerlijn"></param>
+        public void AddLeerlijnen(Leerlijn leerlijn)
         {
-            LeerlijnViewModel Leerlijn = new ViewModels.LeerlijnViewModel();
-
-            Leerlijn.Naam = leerlijn.Vakgebied.Naam;
-            foreach (var deellijn in leerlijn.Deellijnen)
+            if (leerlijn != null)
             {
-                Leerlijn.addDeellijnen(deellijn);
-            }
-            Leerlijnen.Add(Leerlijn);
-        }
+                LeerlijnViewModel Leerlijn = new ViewModels.LeerlijnViewModel();
 
-  
-    }
-
-    public abstract class PropertyValidateModel : IDataErrorInfo, INotifyPropertyChanged
-    {
-        // check for general model error
-        public string Error { get { return null; } }
-
-        // check for property errors
-        public string this[string columnName]
-        {
-            get
-            {
-                var validationResults = new List<ValidationResult>();
-
-                if (Validator.TryValidateProperty(
-                        GetType().GetProperty(columnName).GetValue(this)
-                        , new ValidationContext(this)
-                        {
-                            MemberName = columnName
-                        }
-                        , validationResults))
-                    return null;
-
-                return validationResults.First().ErrorMessage;
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                Leerlijn.Naam = leerlijn.Vakgebied.Naam;
+                foreach (var deellijn in leerlijn.Deellijnen)
+                {
+                    Leerlijn.ExecuteAddDeellijn(deellijn);
+                }
+                Leerlijnen.Add(Leerlijn);
             }
         }
     }

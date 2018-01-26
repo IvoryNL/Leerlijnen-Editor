@@ -110,7 +110,6 @@
 
             this.vakgebieden[vakgebiednaam] = vakgebied;
 
-            ////return new Leerlijn(Guid.NewGuid(), new Vakgebied(vakgebiedItem.Attribute("Naam").Value, deelgebieden.Select(d => d.Naam)), deellijnen);
             return new Leerlijn(Guid.NewGuid(), vakgebied, deellijnen, new AuditTrail<Leerlijn>());
         }
 
@@ -132,9 +131,6 @@
             string deelgebiednaam = element.Attribute("Naam").Value;
 
             var deellijn = new Deellijn(Guid.NewGuid(), deelgebiednaam, tredes, GetHoofdDoelen(subitems, tredes.SelectMany(d => d.Doelen)), new AuditTrail<Deellijn>());
-
-            // give unique deellijn ID
-            ////deellijn.DtoId = GetNextDeellijnDtoId();
 
             return deellijn;
         }

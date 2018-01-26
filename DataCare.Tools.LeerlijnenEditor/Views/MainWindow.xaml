@@ -1,9 +1,10 @@
-﻿<Window x:Class="DataCare.Tools.LeerlijnenEditor.Views.MainWindow"
+﻿<RibbonWindow x:Class="DataCare.Tools.LeerlijnenEditor.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DataCare.Tools.LeerlijnenEditor.ViewModels"
+        xmlns:valRule="clr-namespace:DataCare.Tools.LeerlijnenEditor.ValidationRules"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1300"
         Name="mainWindow"
@@ -38,20 +39,26 @@
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="BorderBrush" Value="Red"/>
                     <Setter Property="BorderThickness" Value="1"/>
-                    <!--<Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>-->
+                    <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="Leerlijnen_Editor">
         <Grid.RowDefinitions>
             <!--Leerlijnen tekst-->
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="100"/>
             <!--Import tekstvak en knop-->
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <!--Label voor leerlijnen pakket-->
             <RowDefinition Height="auto" />
+            <!--Tekstvak voor leerlijnen pakket-->
+            <RowDefinition Height="auto" />
+            <!--Label voor persoon-->
+            <RowDefinition Height="auto" />
+            <!--Tekstvak voor persoon-->
+            <RowDefinition Height="30" />
             <!--Datagrid voor leerlijen-->
             <RowDefinition Height="auto" />
             <!--Knop voor het opslaan-->
@@ -61,39 +68,72 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="30" />
             <ColumnDefinition Width="500" />
-            <ColumnDefinition Width="730" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!--Leerlijnen tekst-->
-        <Label Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" FontWeight="Bold">Leerlijnen</Label>
-        <!--Import tekstvak en knop-->
-        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1">Importeer bestand...</Label>
-        <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center" Name="LeerlijnenPakketFile" Text="{Binding FileOrPathName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Click="Button_Click">...</Button>
+        <Ribbon Grid.Row="0" Grid.ColumnSpan="3" x:Name="RibbonWin" SelectedIndex="0">
+            <RibbonGroup Margin="0" Width="277">
+                <RibbonButton SmallImageSource="/Images/add.png" Label="Nieuw" Command="{Binding NewXMLCommand}"/>
+                <RibbonButton SmallImageSource="/Images/open_48.png" Label="Openen" Command="{Binding OpenXMLCommand}"/>
+                <RibbonButton SmallImageSource="/Images/save.png" Label="Opslaan" Command="{Binding SaveXMLCommand}"/>
+            </RibbonGroup>
+        </Ribbon>
         <!--Label voor leerlijnen pakket-->
-        <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0, 15, 0, 0" Text="{Binding LeerlijnenPakketVM.Naam, ValidatesOnDataErrors=True}"></TextBox>
+        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="center" Content="Pakketnaam" FontWeight="Bold"/>
+        <!--Tekstvak voor leerlijnen pakket-->
+        <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0, 5, 0, 0" Text="{Binding LeerlijnenPakketVM.Naam, ValidatesOnDataErrors=True}" Name="txtPakketNaam"></TextBox>
+        <!--Label voor persoon-->
+        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="0, 5, 0, 0" Content="Auteur" FontWeight="Bold"/>
+        <!--Tekstvak voor persoon-->
+        <TextBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin=" 0, 5, 0, 0" Text="{Binding Auteur, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Name="txtAuteur"/>
         <!--Leerlijnen-->
-        <ScrollViewer Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Name="scrollViewer" Margin="0, 15, 0, 0" Height="500">
+        <ScrollViewer Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Name="scrollViewer" Margin="0, 15, 0, 0" Height="500">
             <StackPanel>
-                <Button Width="100" HorizontalAlignment="left" Command="{Binding AddLeerlijn}" CommandParameter="{Binding LeerlijnenPakketVM}" >Voeg leerlijn toe</Button>
+                <TextBlock>
+                    <Hyperlink TextDecorations="none">
+                        <Image Source="/Images/add.png" HorizontalAlignment="left" Width="16" >
+                            <Image.InputBindings>
+                                <MouseBinding Gesture="LeftClick" Command="{Binding AddLeerlijnCommand}" CommandParameter="{Binding LeerlijnenPakketVM}"/>
+                            </Image.InputBindings>
+                        </Image>
+                    </Hyperlink>
+                </TextBlock>
                 <ItemsControl ItemsSource="{Binding LeerlijnenPakketVM.Leerlijnen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Expander Margin="0, 10, 0, 0">
                                 <Expander.Header>
-                                    <TextBox Name="leerlijnNaam" Text="{Binding Naam, ValidatesOnDataErrors=True}"/>
+                                    <DockPanel>
+                                        <TextBlock FontWeight="Bold" Text="{Binding Naam, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Name="txtLeerlijn"></TextBlock>
+                                        <TextBlock Margin="10,0,0,0"><Hyperlink Command="{Binding RenameLeerlijnCommand}" CommandParameter="{Binding}">Wijzig leerlijn</Hyperlink></TextBlock>
+                                        <TextBlock Margin="10,0,0,0"><Hyperlink Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl},Path=DataContext.DeleteLeerlijnCommand }" CommandParameter="{Binding}">Verwijder leerlijn</Hyperlink></TextBlock>
+                                    </DockPanel>
                                 </Expander.Header>
                                 <StackPanel>
-                                    <Button Width="100" HorizontalAlignment="Left" Command="{Binding RelativeSource= {RelativeSource FindAncestor,AncestorType={x:Type Window}}, Path=DataContext.AddDeellijn}" CommandParameter="{Binding Naam}">Voeg deellijn toe</Button>
-                                    <ItemsControl ItemsSource="{Binding Deellijnen, ValidatesOnDataErrors=True}">
+                                    <DockPanel>
+                                        <TextBlock>
+                                            <Hyperlink TextDecorations="none">
+                                                <Image Source="/Images/add.png" HorizontalAlignment="left" Width="16" >
+                                                    <Image.InputBindings>
+                                                        <MouseBinding Gesture="LeftClick" Command="{Binding AddDeellijnCommand}" CommandParameter="{Binding Naam}"/>
+                                                    </Image.InputBindings>
+                                                </Image>
+                                            </Hyperlink>
+                                        </TextBlock>
+                                    </DockPanel>
+                                    <ItemsControl ItemsSource="{Binding Deellijnen, ValidatesOnDataErrors=True, NotifyOnValidationError=True}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Expander Margin="30, 10, 0, 0">
                                                     <Expander.Header>
-                                                        <TextBox Text="{Binding Deelgebied, ValidatesOnDataErrors=True}"/>
+                                                        <DockPanel>
+                                                            <TextBlock FontWeight="Bold" Text="{Binding Deelgebied, ValidatesOnDataErrors=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Name="txtDeellijn"></TextBlock>
+                                                            <TextBlock Margin="10,0,0,0"><Hyperlink Command="{Binding RenameDeellijnCommand}" CommandParameter="{Binding}">Wijzig deellijn</Hyperlink></TextBlock>
+                                                            <TextBlock Margin="10,0,0,0"><Hyperlink Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl},Path=DataContext.DeleteDeellijnCommand}" CommandParameter="{Binding}">Verwijder deellijn</Hyperlink></TextBlock>
+                                                        </DockPanel>
                                                     </Expander.Header>
                                                     <StackPanel>
-                                                        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Niveaudoelen, ValidatesOnDataErrors=True}" Margin="0, 10, 0, 0">
+                                                        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Niveaudoelen, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Name="grdNiveau" Margin="0, 10, 0, 0">
                                                             <DataGrid.Resources>
                                                                 <Style x:Key="errorStyle" TargetType="{x:Type TextBox}">
                                                                     <Setter Property="Padding" Value="-2"/>
@@ -107,15 +147,23 @@
                                                             </DataGrid.Resources>
                                                             <DataGrid.RowValidationErrorTemplate>
                                                                 <ControlTemplate>
-                                                                    <Grid Margin="0,-2,0,-2" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}">           
+                                                                    <Grid Margin="0,-2,0,-2" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}">
                                                                         <Ellipse StrokeThickness="0" Fill="Red" Width="{TemplateBinding FontSize}" Height="{TemplateBinding FontSize}" />
                                                                         <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"  />
                                                                     </Grid>
                                                                 </ControlTemplate>
                                                             </DataGrid.RowValidationErrorTemplate>
-                                                            <DataGrid.Columns> 
-                                                                <DataGridTextColumn Header="Niveau" Binding="{Binding Niveau, ValidatesOnDataErrors=True}"/>
-                                                                <DataGridTextColumn Header="Naam" Binding="{Binding Doel, ValidatesOnDataErrors=True}"/>
+                                                            <DataGrid.Columns>
+                                                                <DataGridTextColumn Header="Niveau">
+                                                                    <DataGridTextColumn.Binding>
+                                                                        <Binding Path="Niveau" UpdateSourceTrigger="LostFocus">
+                                                                            <Binding.ValidationRules>
+                                                                                <valRule:NiveautredeValidationRule  />
+                                                                            </Binding.ValidationRules>
+                                                                        </Binding>
+                                                                    </DataGridTextColumn.Binding>
+                                                                </DataGridTextColumn>
+                                                                <DataGridTextColumn Header="Naam" Binding="{Binding Doel, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"/>
                                                                 <DataGridCheckBoxColumn Header="Is hoofddoel" Binding="{Binding IsHoofddoel}"/>
                                                             </DataGrid.Columns>
                                                         </DataGrid>
@@ -131,7 +179,5 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
-        <!--Knop voor het opslaan-->
-        <Button Grid.Row="5" Grid.Column="1" Margin="0, 15, 0, 0" Click="btnOpslaan_Click">Opslaan</Button>
     </Grid>
-</Window>
+</RibbonWindow>

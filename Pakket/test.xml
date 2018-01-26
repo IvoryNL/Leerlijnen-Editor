@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Leerlijnpackage>
+  <MetaData GemaaktOp="2018-01-18T09:36:36.6612157+01:00" GemaaktDoorPersoon="test" />
+  <Leerlijn Naam="test">
+    <Vakgebieden>
+      <Vakgebied Naam="Nieuwe leerlijn">
+        <Items>
+          <Item Naam="test">
+            <Subitems>
+              <Subitem Naam="Doel" Niveau="1" IsHoofdDoelstelling="false" />
+            </Subitems>
+          </Item>
+        </Items>
+      </Vakgebied>
+    </Vakgebieden>
+  </Leerlijn>
+</Leerlijnpackage>
